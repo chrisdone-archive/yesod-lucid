@@ -7,15 +7,15 @@
 
 module Yesod.Lucid
   (module Yesod.Lucid
-  ,module Yesod)
+  )
   where
 
 import           Control.Monad.Identity
 import           Data.Text (Text)
 import           Lucid
-import           Yesod (ToTypedContent, MonadHandler, ToContent, Route, HandlerSite,
-                        TypedContent, HasContentType(..))
-import qualified Yesod as Y
+import           Yesod.Core (ToTypedContent, MonadHandler, ToContent,
+                        Route, HandlerSite, HasContentType(..))
+import qualified Yesod.Core as Y
 
 -- | A lucid generator.
 type FromLucid a =
