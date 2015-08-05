@@ -29,10 +29,10 @@ import qualified Yesod.Core as Y
 type LucidHtml = Html ()
 
 -- | A lucid generator.
-type FromLucid a = (Route a -> Text) -> LucidHtml
+type LucidGen a = (Route a -> Text) -> LucidHtml
 
 -- | Output some lucid, passes a URL renderer to the continuation.
-lucid :: MonadHandler m => FromLucid (HandlerSite m) -> m LucidHtml
+lucid :: MonadHandler m => LucidGen (HandlerSite m) -> m LucidHtml
 lucid cont = fmap cont Y.getUrlRender
 
 instance ToTypedContent (Html ()) where
