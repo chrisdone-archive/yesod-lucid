@@ -3,43 +3,43 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 
--- | Useful utilities for using Lucid with Yesod.
+-- | Lucid support for Yesod.
+--
+-- Example Handler for a route, using Lucid to generate html,
+-- including a rendered url:
+--
+-- > import Yesod.Lucid
+-- > import Lucid
+-- > 
+-- > getExampleR :: Handler LucidHtml
+-- > getExampleR = lucid $ \url ->
+-- >   p_ $ a_ [href_ (url ExampleR)] "self link"
 
-module Yesod.Lucid
-  (module Yesod.Lucid
-  )
-  where
+module Yesod.Lucid where
 
-import           Control.Monad.Identity
-import           Data.Text (Text)
-import           Lucid
-import           Yesod.Core (ToTypedContent, MonadHandler, ToContent,
-                        Route, HandlerSite, HasContentType(..))
+import Control.Monad.Identity
+import Data.Text (Text)
+import Lucid
+import Yesod.Core (ToTypedContent, MonadHandler, ToContent, Route,
+                   HandlerSite, HasContentType(..))
 import qualified Yesod.Core as Y
 
+-- | Handler LucidHtml can be used for yesod handlers that use lucid to
+-- generate html.
+type LucidHtml = Html ()
+
 -- | A lucid generator.
-type FromLucid a =
-  Maybe (Route a) ->
-  (Route a -> Text) ->
-  Html ()
+type FromLucid a = (Route a -> Text) -> LucidHtml
 
 -- | Output some lucid, passes a URL renderer to the continuation.
-lucid :: MonadHandler m => FromLucid (HandlerSite m) -> m (Html ())
-lucid cont =
-  do render <- Y.getUrlRender
-     route <- Y.getCurrentRoute
-     return
-       (cont route render)
+lucid :: MonadHandler m => FromLucid (HandlerSite m) -> m LucidHtml
+lucid cont = fmap cont Y.getUrlRender
 
 instance ToTypedContent (Html ()) where
-  toTypedContent m =
-    Y.TypedContent (getContentType (Just m))
-    (Y.toContent m)
+  toTypedContent m = Y.TypedContent (getContentType (Just m)) (Y.toContent m)
 
 instance ToContent (Html ()) where
-  toContent html =
-    Y.ContentBuilder (runIdentity (execHtmlT html))
-                     Nothing
+  toContent html = Y.ContentBuilder (runIdentity (execHtmlT html)) Nothing
 
 instance HasContentType (Html ()) where
   getContentType _ = "text/html"
