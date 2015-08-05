@@ -1,6 +1,7 @@
 Name: yesod-lucid
 Version: 0.1
 Synopsis: Lucid support for Yesod
+Description: Allows using Lucid to generate html in a yesod site.
 License: BSD3
 License-File: LICENSE
 Author: Chris Done
