@@ -15,10 +15,10 @@ Library
   GHC-Options: -Wall
   Exposed-Modules: Yesod.Lucid
   Build-Depends: base (>= 4.5), base < 5
-               , yesod-core (>= 1.1.5 && < 1.5)
-               , lucid (>= 2.9 && < 3.0)
-               , monads-tf (>= 0.1 && < 1.0)
-               , text (>= 1.0 && < 2.0)
+               , yesod-core
+               , lucid
+               , monads-tf
+               , text
 
 source-repository head
   type: git
