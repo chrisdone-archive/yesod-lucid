@@ -1,3 +1,4 @@
+{-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE TypeSynonymInstances #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE OverloadedStrings #-}
@@ -17,21 +18,31 @@
 -- >      p_ $ a_ [href_ (url ExampleR)] "self link"
 
 module Yesod.Lucid
-  ( route
-  , commuteHtmlT -- Impure (using the yesod handler monad).
+  ( commuteHtmlT -- Impure (using the yesod handler monad).
   , relaxHtmlT -- Pure Html generators.
+  , getUrl
   ) where
 
+import Control.Monad.Trans
+import Control.Monad.Trans.Reader
 import Data.Functor.Identity
-import Control.Monad.Reader
 import Data.Text (Text)
 import Lucid.Base
-import Yesod.Core (ToTypedContent, MonadHandler, ToContent, Route,
-                   HandlerSite, HasContentType(..))
+import Yesod.Core (HandlerFor, ToTypedContent, ToContent, Route, HasContentType(..))
+
 import qualified Yesod.Core as Y
 
-route :: MonadHandler m => HtmlT m (Route (HandlerSite m) -> Text)
-route = lift Y.getUrlRender
+class HasUrl m where
+  type Site m :: *
+  getUrl :: m (Route (Site m) -> Text)
+
+instance HasUrl (HtmlT (HandlerFor site)) where
+  type Site (HtmlT (HandlerFor site)) = site
+  getUrl = lift Y.getUrlRender
+
+instance HasUrl (HtmlT (Reader (Route site -> Text))) where
+  type Site (HtmlT (Reader (Route site -> Text))) = site
+  getUrl = lift ask
 
 instance ToTypedContent (Html ()) where
   toTypedContent m = Y.TypedContent (getContentType (Just m)) (Y.toContent m)
