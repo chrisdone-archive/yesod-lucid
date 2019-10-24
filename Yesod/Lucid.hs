@@ -10,30 +10,28 @@
 --
 -- > import Yesod.Lucid
 -- > import Lucid
--- > 
--- > getExampleR :: Handler LucidHtml
--- > getExampleR = lucid $ \url ->
--- >   p_ $ a_ [href_ (url ExampleR)] "self link"
+-- >
+-- > getExampleR :: Handler Html
+-- > getExampleR = commuteHtmlT $
+-- >   do url <- route
+-- >      p_ $ a_ [href_ (url ExampleR)] "self link"
 
-module Yesod.Lucid where
+module Yesod.Lucid
+  ( route
+  , commuteHtmlT -- Impure (using the yesod handler monad).
+  , relaxHtmlT -- Pure Html generators.
+  ) where
 
-import Control.Monad.Identity
+import Data.Functor.Identity
+import Control.Monad.Reader
 import Data.Text (Text)
-import Lucid
+import Lucid.Base
 import Yesod.Core (ToTypedContent, MonadHandler, ToContent, Route,
                    HandlerSite, HasContentType(..))
 import qualified Yesod.Core as Y
 
--- | Handler LucidHtml can be used for yesod handlers that use lucid to
--- generate html.
-type LucidHtml = Html ()
-
--- | A lucid generator.
-type LucidGen a = (Route a -> Text) -> LucidHtml
-
--- | Output some lucid, passes a URL renderer to the continuation.
-lucid :: MonadHandler m => LucidGen (HandlerSite m) -> m LucidHtml
-lucid cont = fmap cont Y.getUrlRender
+route :: MonadHandler m => HtmlT m (Route (HandlerSite m) -> Text)
+route = lift Y.getUrlRender
 
 instance ToTypedContent (Html ()) where
   toTypedContent m = Y.TypedContent (getContentType (Just m)) (Y.toContent m)
