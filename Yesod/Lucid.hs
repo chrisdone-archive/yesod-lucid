@@ -20,6 +20,7 @@
 module Yesod.Lucid
   ( commuteHtmlT -- Impure (using the yesod handler monad).
   , relaxHtmlT -- Pure Html generators.
+  , htmlWithUrl -- Pure Html with url.
   , getUrl
   ) where
 
@@ -35,6 +36,12 @@ import qualified Yesod.Core as Y
 class MonadUrl m where
   type Site m :: *
   getUrl :: m (Route (Site m) -> Text)
+
+htmlWithUrl ::
+     Y.MonadHandler m => Reader (Route (Y.HandlerSite m) -> Text) b -> m b
+htmlWithUrl m = do
+  renderer <- Y.getUrlRender
+  pure (runReader m renderer)
 
 instance MonadUrl (HtmlT (HandlerFor site)) where
   type Site (HtmlT (HandlerFor site)) = site
