@@ -32,15 +32,15 @@ import Yesod.Core (HandlerFor, ToTypedContent, ToContent, Route, HasContentType(
 
 import qualified Yesod.Core as Y
 
-class HasUrl m where
+class MonadUrl m where
   type Site m :: *
   getUrl :: m (Route (Site m) -> Text)
 
-instance HasUrl (HtmlT (HandlerFor site)) where
+instance MonadUrl (HtmlT (HandlerFor site)) where
   type Site (HtmlT (HandlerFor site)) = site
   getUrl = lift Y.getUrlRender
 
-instance HasUrl (HtmlT (Reader (Route site -> Text))) where
+instance MonadUrl (HtmlT (Reader (Route site -> Text))) where
   type Site (HtmlT (Reader (Route site -> Text))) = site
   getUrl = lift ask
 
