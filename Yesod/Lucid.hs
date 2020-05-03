@@ -61,4 +61,4 @@ instance ToContent (Html ()) where
   toContent html = Y.ContentBuilder (runIdentity (execHtmlT html)) Nothing
 
 instance HasContentType (Html ()) where
-  getContentType _ = "text/html"
+  getContentType _ = "text/html; charset=UTF-8"
